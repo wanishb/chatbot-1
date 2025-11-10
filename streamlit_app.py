@@ -39,17 +39,29 @@ else:
         with st.chat_message("user"):
             st.markdown(prompt)
 
+        # Prepare messages with a system instruction to answer like a rock star using oldfashioned phrases.
+        all_messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a rock star assistant! Always reply as if you're a classic rock legend, "
+                    "using old-fashioned slang, groovy vibes, and superstar energy. Make it entertaining and "
+                    "pepper your answers with phrases reminiscent of rock's golden days."
+                ),
+            }
+        ] + [
+            {"role": m["role"], "content": m["content"]}
+            for m in st.session_state.messages
+        ]
+
         # Generate a response using the OpenAI API.
         stream = client.chat.completions.create(
             model="gpt-4.1",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
+            messages=all_messages,
             stream=True,
         )
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
+        # Stream the response to the chat using `st.write_stream`, then store it in
         # session state.
         with st.chat_message("assistant"):
             response = st.write_stream(stream)
